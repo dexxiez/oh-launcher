@@ -1,4 +1,4 @@
-package app.olauncher.data
+package com.dexxiez.ohlauncher.data
 
 import android.content.Context
 import android.content.SharedPreferences

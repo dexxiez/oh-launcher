@@ -1,4 +1,4 @@
-package app.olauncher.ui
+package com.dexxiez.ohlauncher.ui
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,20 +13,20 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Recycler
-import app.olauncher.MainViewModel
-import app.olauncher.R
-import app.olauncher.data.Constants
-import app.olauncher.data.Prefs
-import app.olauncher.databinding.FragmentAppDrawerBinding
-import app.olauncher.helper.hideKeyboard
-import app.olauncher.helper.isEinkDisplay
-import app.olauncher.helper.isSystemApp
-import app.olauncher.helper.openAppInfo
-import app.olauncher.helper.openSearch
-import app.olauncher.helper.openUrl
-import app.olauncher.helper.showKeyboard
-import app.olauncher.helper.showToast
-import app.olauncher.helper.uninstall
+import com.dexxiez.ohlauncher.MainViewModel
+import com.dexxiez.ohlauncher.R
+import com.dexxiez.ohlauncher.data.Constants
+import com.dexxiez.ohlauncher.data.Prefs
+import com.dexxiez.ohlauncher.databinding.FragmentAppDrawerBinding
+import com.dexxiez.ohlauncher.helper.hideKeyboard
+import com.dexxiez.ohlauncher.helper.isEinkDisplay
+import com.dexxiez.ohlauncher.helper.isSystemApp
+import com.dexxiez.ohlauncher.helper.openAppInfo
+import com.dexxiez.ohlauncher.helper.openSearch
+import com.dexxiez.ohlauncher.helper.openUrl
+import com.dexxiez.ohlauncher.helper.showKeyboard
+import com.dexxiez.ohlauncher.helper.showToast
+import com.dexxiez.ohlauncher.helper.uninstall
 
 
 class AppDrawerFragment : Fragment() {

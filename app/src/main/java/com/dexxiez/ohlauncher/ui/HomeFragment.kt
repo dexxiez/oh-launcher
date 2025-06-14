@@ -1,4 +1,4 @@
-package app.olauncher.ui
+package com.dexxiez.ohlauncher.ui
 
 import android.app.admin.DevicePolicyManager
 import android.content.Context
@@ -23,27 +23,27 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import app.olauncher.MainViewModel
-import app.olauncher.R
-import app.olauncher.data.AppModel
-import app.olauncher.data.Constants
-import app.olauncher.data.Prefs
-import app.olauncher.databinding.FragmentHomeBinding
-import app.olauncher.helper.appUsagePermissionGranted
-import app.olauncher.helper.dpToPx
-import app.olauncher.helper.expandNotificationDrawer
-import app.olauncher.helper.getChangedAppTheme
-import app.olauncher.helper.getUserHandleFromString
-import app.olauncher.helper.isPackageInstalled
-import app.olauncher.helper.openAlarmApp
-import app.olauncher.helper.openCalendar
-import app.olauncher.helper.openCameraApp
-import app.olauncher.helper.openDialerApp
-import app.olauncher.helper.openSearch
-import app.olauncher.helper.setPlainWallpaperByTheme
-import app.olauncher.helper.showToast
-import app.olauncher.listener.OnSwipeTouchListener
-import app.olauncher.listener.ViewSwipeTouchListener
+import com.dexxiez.ohlauncher.MainViewModel
+import com.dexxiez.ohlauncher.R
+import com.dexxiez.ohlauncher.data.AppModel
+import com.dexxiez.ohlauncher.data.Constants
+import com.dexxiez.ohlauncher.data.Prefs
+import com.dexxiez.ohlauncher.databinding.FragmentHomeBinding
+import com.dexxiez.ohlauncher.helper.appUsagePermissionGranted
+import com.dexxiez.ohlauncher.helper.dpToPx
+import com.dexxiez.ohlauncher.helper.expandNotificationDrawer
+import com.dexxiez.ohlauncher.helper.getChangedAppTheme
+import com.dexxiez.ohlauncher.helper.getUserHandleFromString
+import com.dexxiez.ohlauncher.helper.isPackageInstalled
+import com.dexxiez.ohlauncher.helper.openAlarmApp
+import com.dexxiez.ohlauncher.helper.openCalendar
+import com.dexxiez.ohlauncher.helper.openCameraApp
+import com.dexxiez.ohlauncher.helper.openDialerApp
+import com.dexxiez.ohlauncher.helper.openSearch
+import com.dexxiez.ohlauncher.helper.setPlainWallpaperByTheme
+import com.dexxiez.ohlauncher.helper.showToast
+import com.dexxiez.ohlauncher.listener.OnSwipeTouchListener
+import com.dexxiez.ohlauncher.listener.ViewSwipeTouchListener
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -55,9 +55,14 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
     private lateinit var deviceManager: DevicePolicyManager
 
     private var _binding: FragmentHomeBinding? = null
-    private val binding get() = _binding!!
+    private val binding
+        get() = _binding!!
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+    ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -65,11 +70,12 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         prefs = Prefs(requireContext())
-        viewModel = activity?.run {
-            ViewModelProvider(this)[MainViewModel::class.java]
-        } ?: throw Exception("Invalid Activity")
+        viewModel =
+                activity?.run { ViewModelProvider(this)[MainViewModel::class.java] }
+                        ?: throw Exception("Invalid Activity")
 
-        deviceManager = context?.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+        deviceManager =
+                context?.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
 
         initObservers()
         setHomeAlignment(prefs.homeAlignment)
@@ -81,8 +87,7 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
         super.onResume()
         populateHomeScreen(false)
         viewModel.isOlauncherDefault()
-        if (prefs.showStatusBar) showStatusBar()
-        else hideStatusBar()
+        if (prefs.showStatusBar) showStatusBar() else hideStatusBar()
     }
 
     override fun onClick(view: View) {
@@ -92,7 +97,6 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
             R.id.date -> openCalendarApp()
             R.id.setDefaultLauncher -> viewModel.resetLauncherLiveData.call()
             R.id.tvScreenTime -> openScreenTimeDigitalWellbeing()
-
             else -> {
                 try { // Launch app
                     val appLocation = view.tag.toString().toInt()
@@ -105,53 +109,51 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
     }
 
     private fun openClockApp() {
-        if (prefs.clockAppPackage.isBlank())
-            openAlarmApp(requireContext())
-        else
-            launchApp(
-                "Clock",
-                prefs.clockAppPackage,
-                prefs.clockAppClassName,
-                prefs.clockAppUser
-            )
+        if (prefs.clockAppPackage.isBlank()) openAlarmApp(requireContext())
+        else launchApp("Clock", prefs.clockAppPackage, prefs.clockAppClassName, prefs.clockAppUser)
     }
 
     private fun openCalendarApp() {
-        if (prefs.calendarAppPackage.isBlank())
-            openCalendar(requireContext())
+        if (prefs.calendarAppPackage.isBlank()) openCalendar(requireContext())
         else
-            launchApp(
-                "Calendar",
-                prefs.calendarAppPackage,
-                prefs.calendarAppClassName,
-                prefs.calendarAppUser
-            )
+                launchApp(
+                        "Calendar",
+                        prefs.calendarAppPackage,
+                        prefs.calendarAppClassName,
+                        prefs.calendarAppUser
+                )
     }
 
     override fun onLongClick(view: View): Boolean {
         when (view.id) {
-            R.id.homeApp1 -> showAppList(Constants.FLAG_SET_HOME_APP_1, prefs.appName1.isNotEmpty(), true)
-            R.id.homeApp2 -> showAppList(Constants.FLAG_SET_HOME_APP_2, prefs.appName2.isNotEmpty(), true)
-            R.id.homeApp3 -> showAppList(Constants.FLAG_SET_HOME_APP_3, prefs.appName3.isNotEmpty(), true)
-            R.id.homeApp4 -> showAppList(Constants.FLAG_SET_HOME_APP_4, prefs.appName4.isNotEmpty(), true)
-            R.id.homeApp5 -> showAppList(Constants.FLAG_SET_HOME_APP_5, prefs.appName5.isNotEmpty(), true)
-            R.id.homeApp6 -> showAppList(Constants.FLAG_SET_HOME_APP_6, prefs.appName6.isNotEmpty(), true)
-            R.id.homeApp7 -> showAppList(Constants.FLAG_SET_HOME_APP_7, prefs.appName7.isNotEmpty(), true)
-            R.id.homeApp8 -> showAppList(Constants.FLAG_SET_HOME_APP_8, prefs.appName8.isNotEmpty(), true)
+            R.id.homeApp1 ->
+                    showAppList(Constants.FLAG_SET_HOME_APP_1, prefs.appName1.isNotEmpty(), true)
+            R.id.homeApp2 ->
+                    showAppList(Constants.FLAG_SET_HOME_APP_2, prefs.appName2.isNotEmpty(), true)
+            R.id.homeApp3 ->
+                    showAppList(Constants.FLAG_SET_HOME_APP_3, prefs.appName3.isNotEmpty(), true)
+            R.id.homeApp4 ->
+                    showAppList(Constants.FLAG_SET_HOME_APP_4, prefs.appName4.isNotEmpty(), true)
+            R.id.homeApp5 ->
+                    showAppList(Constants.FLAG_SET_HOME_APP_5, prefs.appName5.isNotEmpty(), true)
+            R.id.homeApp6 ->
+                    showAppList(Constants.FLAG_SET_HOME_APP_6, prefs.appName6.isNotEmpty(), true)
+            R.id.homeApp7 ->
+                    showAppList(Constants.FLAG_SET_HOME_APP_7, prefs.appName7.isNotEmpty(), true)
+            R.id.homeApp8 ->
+                    showAppList(Constants.FLAG_SET_HOME_APP_8, prefs.appName8.isNotEmpty(), true)
             R.id.clock -> {
                 showAppList(Constants.FLAG_SET_CLOCK_APP)
                 prefs.clockAppPackage = ""
                 prefs.clockAppClassName = ""
                 prefs.clockAppUser = ""
             }
-
             R.id.date -> {
                 showAppList(Constants.FLAG_SET_CALENDAR_APP)
                 prefs.calendarAppPackage = ""
                 prefs.calendarAppClassName = ""
                 prefs.calendarAppUser = ""
             }
-
             R.id.setDefaultLauncher -> {
                 prefs.hideSetDefaultLauncher = true
                 binding.setDefaultLauncher.visibility = View.GONE
@@ -170,29 +172,27 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
             binding.setDefaultLauncher.visibility = View.GONE
         } else binding.firstRunTips.visibility = View.GONE
 
-        viewModel.refreshHome.observe(viewLifecycleOwner) {
-            populateHomeScreen(it)
-        }
-        viewModel.isOlauncherDefault.observe(viewLifecycleOwner, Observer {
-            if (it != true) {
-                if (prefs.dailyWallpaper) {
-                    prefs.dailyWallpaper = false
-                    viewModel.cancelWallpaperWorker()
+        viewModel.refreshHome.observe(viewLifecycleOwner) { populateHomeScreen(it) }
+        viewModel.isOlauncherDefault.observe(
+                viewLifecycleOwner,
+                Observer {
+                    if (it != true) {
+                        if (prefs.dailyWallpaper) {
+                            prefs.dailyWallpaper = false
+                            viewModel.cancelWallpaperWorker()
+                        }
+                        prefs.homeBottomAlignment = false
+                        setHomeAlignment()
+                    }
+                    if (binding.firstRunTips.visibility == View.VISIBLE) return@Observer
+                    binding.setDefaultLauncher.isVisible =
+                            it.not() && prefs.hideSetDefaultLauncher.not()
+                    //            if (it) binding.setDefaultLauncher.visibility = View.GONE
+                    //            else binding.setDefaultLauncher.visibility = View.VISIBLE
                 }
-                prefs.homeBottomAlignment = false
-                setHomeAlignment()
-            }
-            if (binding.firstRunTips.visibility == View.VISIBLE) return@Observer
-            binding.setDefaultLauncher.isVisible = it.not() && prefs.hideSetDefaultLauncher.not()
-//            if (it) binding.setDefaultLauncher.visibility = View.GONE
-//            else binding.setDefaultLauncher.visibility = View.VISIBLE
-        })
-        viewModel.homeAppAlignment.observe(viewLifecycleOwner) {
-            setHomeAlignment(it)
-        }
-        viewModel.toggleDateTime.observe(viewLifecycleOwner) {
-            populateDateTime()
-        }
+        )
+        viewModel.homeAppAlignment.observe(viewLifecycleOwner) { setHomeAlignment(it) }
+        viewModel.toggleDateTime.observe(viewLifecycleOwner) { populateDateTime() }
         viewModel.screenTimeValue.observe(viewLifecycleOwner) {
             it?.let { binding.tvScreenTime.text = it }
         }
@@ -223,7 +223,8 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
     }
 
     private fun setHomeAlignment(horizontalGravity: Int = prefs.homeAlignment) {
-        val verticalGravity = if (prefs.homeBottomAlignment) Gravity.BOTTOM else Gravity.CENTER_VERTICAL
+        val verticalGravity =
+                if (prefs.homeBottomAlignment) Gravity.BOTTOM else Gravity.CENTER_VERTICAL
         binding.homeAppsLayout.gravity = horizontalGravity or verticalGravity
         binding.dateTimeLayout.gravity = horizontalGravity
         binding.homeApp1.gravity = horizontalGravity
@@ -241,15 +242,15 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
         binding.clock.isVisible = Constants.DateTime.isTimeVisible(prefs.dateTimeVisibility)
         binding.date.isVisible = Constants.DateTime.isDateVisible(prefs.dateTimeVisibility)
 
-//        var dateText = SimpleDateFormat("EEE, d MMM", Locale.getDefault()).format(Date())
+        //        var dateText = SimpleDateFormat("EEE, d MMM", Locale.getDefault()).format(Date())
         val dateFormat = SimpleDateFormat("EEE, d MMM", Locale.getDefault())
         var dateText = dateFormat.format(Date())
 
         if (!prefs.showStatusBar) {
-            val battery = (requireContext().getSystemService(Context.BATTERY_SERVICE) as BatteryManager)
-                .getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
-            if (battery > 0)
-                dateText = getString(R.string.day_battery, dateText, battery)
+            val battery =
+                    (requireContext().getSystemService(Context.BATTERY_SERVICE) as BatteryManager)
+                            .getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
+            if (battery > 0) dateText = getString(R.string.day_battery, dateText, battery)
         }
         binding.date.text = dateText.replace(".,", ",")
     }
@@ -263,20 +264,27 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
 
         val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
         val horizontalMargin = if (isLandscape) 64.dpToPx() else 10.dpToPx()
-        val marginTop = if (isLandscape) {
-            if (prefs.dateTimeVisibility == Constants.DateTime.DATE_ONLY) 36.dpToPx() else 56.dpToPx()
-        } else {
-            if (prefs.dateTimeVisibility == Constants.DateTime.DATE_ONLY) 45.dpToPx() else 72.dpToPx()
-        }
-        val params = FrameLayout.LayoutParams(
-            FrameLayout.LayoutParams.WRAP_CONTENT,
-            FrameLayout.LayoutParams.WRAP_CONTENT
-        ).apply {
-            topMargin = marginTop
-            marginStart = horizontalMargin
-            marginEnd = horizontalMargin
-            gravity = if (prefs.homeAlignment == Gravity.END) Gravity.START else Gravity.END
-        }
+        val marginTop =
+                if (isLandscape) {
+                    if (prefs.dateTimeVisibility == Constants.DateTime.DATE_ONLY) 36.dpToPx()
+                    else 56.dpToPx()
+                } else {
+                    if (prefs.dateTimeVisibility == Constants.DateTime.DATE_ONLY) 45.dpToPx()
+                    else 72.dpToPx()
+                }
+        val params =
+                FrameLayout.LayoutParams(
+                                FrameLayout.LayoutParams.WRAP_CONTENT,
+                                FrameLayout.LayoutParams.WRAP_CONTENT
+                        )
+                        .apply {
+                            topMargin = marginTop
+                            marginStart = horizontalMargin
+                            marginEnd = horizontalMargin
+                            gravity =
+                                    if (prefs.homeAlignment == Gravity.END) Gravity.START
+                                    else Gravity.END
+                        }
         binding.tvScreenTime.layoutParams = params
         binding.tvScreenTime.setPadding(10.dpToPx())
     }
@@ -285,8 +293,7 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
         if (appCountUpdated) hideHomeApps()
         populateDateTime()
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
-            populateScreenTime()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) populateScreenTime()
 
         val homeAppsNum = prefs.homeAppsNum
         if (homeAppsNum == 0) return
@@ -347,7 +354,12 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
         }
     }
 
-    private fun setHomeAppText(textView: TextView, appName: String, packageName: String, userString: String): Boolean {
+    private fun setHomeAppText(
+            textView: TextView,
+            appName: String,
+            packageName: String,
+            userString: String
+    ): Boolean {
         if (isPackageInstalled(requireContext(), packageName, userString)) {
             textView.text = appName
             return true
@@ -369,46 +381,52 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
 
     private fun homeAppClicked(location: Int) {
         if (prefs.getAppName(location).isEmpty()) showLongPressToast()
-        else launchApp(
-            prefs.getAppName(location),
-            prefs.getAppPackage(location),
-            prefs.getAppActivityClassName(location),
-            prefs.getAppUser(location)
-        )
+        else
+                launchApp(
+                        prefs.getAppName(location),
+                        prefs.getAppPackage(location),
+                        prefs.getAppActivityClassName(location),
+                        prefs.getAppUser(location)
+                )
     }
 
-    private fun launchApp(appName: String, packageName: String, activityClassName: String?, userString: String) {
+    private fun launchApp(
+            appName: String,
+            packageName: String,
+            activityClassName: String?,
+            userString: String
+    ) {
         viewModel.selectedApp(
-            AppModel(
-                appName,
-                null,
-                packageName,
-                activityClassName,
-                false,
-                getUserHandleFromString(requireContext(), userString)
-            ),
-            Constants.FLAG_LAUNCH_APP
+                AppModel(
+                        appName,
+                        null,
+                        packageName,
+                        activityClassName,
+                        false,
+                        getUserHandleFromString(requireContext(), userString)
+                ),
+                Constants.FLAG_LAUNCH_APP
         )
     }
 
-    private fun showAppList(flag: Int, rename: Boolean = false, includeHiddenApps: Boolean = false) {
+    private fun showAppList(
+            flag: Int,
+            rename: Boolean = false,
+            includeHiddenApps: Boolean = false
+    ) {
         viewModel.getAppList(includeHiddenApps)
         try {
-            findNavController().navigate(
-                R.id.action_mainFragment_to_appListFragment,
-                bundleOf(
-                    Constants.Key.FLAG to flag,
-                    Constants.Key.RENAME to rename
-                )
-            )
+            findNavController()
+                    .navigate(
+                            R.id.action_mainFragment_to_appListFragment,
+                            bundleOf(Constants.Key.FLAG to flag, Constants.Key.RENAME to rename)
+                    )
         } catch (e: Exception) {
-            findNavController().navigate(
-                R.id.appListFragment,
-                bundleOf(
-                    Constants.Key.FLAG to flag,
-                    Constants.Key.RENAME to rename
-                )
-            )
+            findNavController()
+                    .navigate(
+                            R.id.appListFragment,
+                            bundleOf(Constants.Key.FLAG to flag, Constants.Key.RENAME to rename)
+                    )
             e.printStackTrace()
         }
     }
@@ -423,24 +441,24 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
     private fun openSwipeRightApp() {
         if (!prefs.swipeRightEnabled) return
         if (prefs.appPackageSwipeRight.isNotEmpty())
-            launchApp(
-                prefs.appNameSwipeRight,
-                prefs.appPackageSwipeRight,
-                prefs.appActivityClassNameRight,
-                prefs.appUserSwipeRight
-            )
+                launchApp(
+                        prefs.appNameSwipeRight,
+                        prefs.appPackageSwipeRight,
+                        prefs.appActivityClassNameRight,
+                        prefs.appUserSwipeRight
+                )
         else openDialerApp(requireContext())
     }
 
     private fun openSwipeLeftApp() {
         if (!prefs.swipeLeftEnabled) return
         if (prefs.appPackageSwipeLeft.isNotEmpty())
-            launchApp(
-                prefs.appNameSwipeLeft,
-                prefs.appPackageSwipeLeft,
-                prefs.appActivityClassNameSwipeLeft,
-                prefs.appUserSwipeLeft
-            )
+                launchApp(
+                        prefs.appNameSwipeLeft,
+                        prefs.appPackageSwipeLeft,
+                        prefs.appActivityClassNameSwipeLeft,
+                        prefs.appUserSwipeLeft
+                )
         else openCameraApp(requireContext())
     }
 
@@ -449,10 +467,18 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
             try {
                 deviceManager.lockNow()
             } catch (e: SecurityException) {
-                requireContext().showToast(getString(R.string.please_turn_on_double_tap_to_unlock), Toast.LENGTH_LONG)
+                requireContext()
+                        .showToast(
+                                getString(R.string.please_turn_on_double_tap_to_unlock),
+                                Toast.LENGTH_LONG
+                        )
                 findNavController().navigate(R.id.action_mainFragment_to_settingsFragment)
             } catch (e: Exception) {
-                requireContext().showToast(getString(R.string.launcher_failed_to_lock_device), Toast.LENGTH_LONG)
+                requireContext()
+                        .showToast(
+                                getString(R.string.launcher_failed_to_lock_device),
+                                Toast.LENGTH_LONG
+                        )
                 prefs.lockModeOn = false
             }
         }
@@ -460,17 +486,19 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
 
     private fun showStatusBar() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-            requireActivity().window.insetsController?.show(WindowInsets.Type.statusBars())
+                requireActivity().window.insetsController?.show(WindowInsets.Type.statusBars())
         else
-            @Suppress("DEPRECATION", "InlinedApi")
-            requireActivity().window.decorView.apply {
-                systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-            }
+                @Suppress("DEPRECATION", "InlinedApi")
+                requireActivity().window.decorView.apply {
+                    systemUiVisibility =
+                            View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                }
     }
 
     private fun hideStatusBar() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-            requireActivity().window.insetsController?.hide(WindowInsets.Type.statusBars())
+                requireActivity().window.insetsController?.hide(WindowInsets.Type.statusBars())
         else {
             @Suppress("DEPRECATION")
             requireActivity().window.decorView.apply {
@@ -494,16 +522,16 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
         val intent = Intent()
         try {
             intent.setClassName(
-                Constants.DIGITAL_WELLBEING_PACKAGE_NAME,
-                Constants.DIGITAL_WELLBEING_ACTIVITY
+                    Constants.DIGITAL_WELLBEING_PACKAGE_NAME,
+                    Constants.DIGITAL_WELLBEING_ACTIVITY
             )
             startActivity(intent)
         } catch (e: Exception) {
             e.printStackTrace()
             try {
                 intent.setClassName(
-                    Constants.DIGITAL_WELLBEING_SAMSUNG_PACKAGE_NAME,
-                    Constants.DIGITAL_WELLBEING_SAMSUNG_ACTIVITY
+                        Constants.DIGITAL_WELLBEING_SAMSUNG_PACKAGE_NAME,
+                        Constants.DIGITAL_WELLBEING_SAMSUNG_ACTIVITY
                 )
                 startActivity(intent)
             } catch (e: Exception) {
@@ -512,7 +540,8 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
         }
     }
 
-    private fun showLongPressToast() = requireContext().showToast(getString(R.string.long_press_to_select_app))
+    private fun showLongPressToast() =
+            requireContext().showToast(getString(R.string.long_press_to_select_app))
 
     private fun textOnClick(view: View) = onClick(view)
 
@@ -552,10 +581,8 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
 
             override fun onDoubleClick() {
                 super.onDoubleClick()
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
-                    binding.lock.performClick()
-                else if (prefs.lockModeOn)
-                    lockPhone()
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) binding.lock.performClick()
+                else if (prefs.lockModeOn) lockPhone()
             }
 
             override fun onClick() {

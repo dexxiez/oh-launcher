@@ -1,4 +1,4 @@
-package app.olauncher.data
+package com.dexxiez.ohlauncher.data
 
 import android.os.UserHandle
 import java.text.CollationKey

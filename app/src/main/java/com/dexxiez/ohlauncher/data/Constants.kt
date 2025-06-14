@@ -1,4 +1,4 @@
-package app.olauncher.data
+package com.dexxiez.ohlauncher.data
 
 object Constants {
 

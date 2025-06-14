@@ -1,8 +1,8 @@
-package app.olauncher.helper
+package com.dexxiez.ohlauncher.helper
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import app.olauncher.R
+import com.dexxiez.ohlauncher.R
 
 class FakeHomeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -1,4 +1,4 @@
-package app.olauncher.ui
+package com.dexxiez.ohlauncher.ui
 
 import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
@@ -20,25 +20,25 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import app.olauncher.BuildConfig
-import app.olauncher.MainViewModel
-import app.olauncher.R
-import app.olauncher.data.Constants
-import app.olauncher.data.Prefs
-import app.olauncher.databinding.FragmentSettingsBinding
-import app.olauncher.helper.animateAlpha
-import app.olauncher.helper.appUsagePermissionGranted
-import app.olauncher.helper.getColorFromAttr
-import app.olauncher.helper.isAccessServiceEnabled
-import app.olauncher.helper.isDarkThemeOn
-import app.olauncher.helper.isOlauncherDefault
-import app.olauncher.helper.openAppInfo
-import app.olauncher.helper.openUrl
-import app.olauncher.helper.rateApp
-import app.olauncher.helper.setPlainWallpaper
-import app.olauncher.helper.shareApp
-import app.olauncher.helper.showToast
-import app.olauncher.listener.DeviceAdmin
+import com.dexxiez.ohlauncher.BuildConfig
+import com.dexxiez.ohlauncher.MainViewModel
+import com.dexxiez.ohlauncher.R
+import com.dexxiez.ohlauncher.data.Constants
+import com.dexxiez.ohlauncher.data.Prefs
+import com.dexxiez.ohlauncher.databinding.FragmentSettingsBinding
+import com.dexxiez.ohlauncher.helper.animateAlpha
+import com.dexxiez.ohlauncher.helper.appUsagePermissionGranted
+import com.dexxiez.ohlauncher.helper.getColorFromAttr
+import com.dexxiez.ohlauncher.helper.isAccessServiceEnabled
+import com.dexxiez.ohlauncher.helper.isDarkThemeOn
+import com.dexxiez.ohlauncher.helper.isOlauncherDefault
+import com.dexxiez.ohlauncher.helper.openAppInfo
+import com.dexxiez.ohlauncher.helper.openUrl
+import com.dexxiez.ohlauncher.helper.rateApp
+import com.dexxiez.ohlauncher.helper.setPlainWallpaper
+import com.dexxiez.ohlauncher.helper.shareApp
+import com.dexxiez.ohlauncher.helper.showToast
+import com.dexxiez.ohlauncher.listener.DeviceAdmin
 
 class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListener {
 

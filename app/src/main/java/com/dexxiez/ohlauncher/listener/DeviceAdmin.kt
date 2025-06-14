@@ -1,10 +1,10 @@
-package app.olauncher.listener
+package com.dexxiez.ohlauncher.listener
 
 import android.app.admin.DeviceAdminReceiver
 import android.content.Context
 import android.content.Intent
 import android.widget.Toast
-import app.olauncher.R
+import com.dexxiez.ohlauncher.R
 
 class DeviceAdmin : DeviceAdminReceiver() {
     fun onEnabled(intent: Intent?, context: Context) {
