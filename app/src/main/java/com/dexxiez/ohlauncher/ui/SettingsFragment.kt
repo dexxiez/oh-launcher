@@ -20,15 +20,11 @@ import com.dexxiez.ohlauncher.R
 import com.dexxiez.ohlauncher.data.Constants
 import com.dexxiez.ohlauncher.data.Prefs
 import com.dexxiez.ohlauncher.databinding.FragmentSettingsBinding
-import com.dexxiez.ohlauncher.helper.appUsagePermissionGranted
 import com.dexxiez.ohlauncher.helper.getColorFromAttr
 import com.dexxiez.ohlauncher.helper.isDarkThemeOn
 import com.dexxiez.ohlauncher.helper.isOlauncherDefault
 import com.dexxiez.ohlauncher.helper.openAppInfo
-import com.dexxiez.ohlauncher.helper.openUrl
-import com.dexxiez.ohlauncher.helper.rateApp
 import com.dexxiez.ohlauncher.helper.setPlainWallpaper
-import com.dexxiez.ohlauncher.helper.shareApp
 import com.dexxiez.ohlauncher.helper.showToast
 
 class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListener {
@@ -60,8 +56,6 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
         binding.homeAppsNum.text = prefs.homeAppsNum.toString()
         populateProMessage()
         populateKeyboardText()
-        populateScreenTimeOnOff()
-        populateWallpaperText()
         populateAppThemeText()
         populateTextSize()
         populateAlignment()
@@ -84,9 +78,6 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
 
         when (view.id) {
             R.id.olauncherHiddenApps -> showHiddenApps()
-            R.id.olauncherPro -> requireContext().openUrl(Constants.URL_OLAUNCHER_PRO)
-            R.id.screenTimeOnOff ->
-                    viewModel.showDialog.postValue(Constants.Dialog.DIGITAL_WELLBEING)
             R.id.appInfo ->
                     openAppInfo(
                             requireContext(),
@@ -96,8 +87,6 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
             R.id.setLauncher -> viewModel.resetLauncherLiveData.call()
             R.id.autoShowKeyboard -> toggleKeyboardText()
             R.id.homeAppsNum -> binding.appsNumSelectLayout.visibility = View.VISIBLE
-            R.id.dailyWallpaperUrl -> requireContext().openUrl(prefs.dailyWallpaperUrl)
-            R.id.dailyWallpaper -> toggleDailyWallpaperUpdate()
             R.id.alignment -> binding.alignmentSelectLayout.visibility = View.VISIBLE
             R.id.alignmentLeft -> viewModel.updateHomeAlignment(Gravity.START)
             R.id.alignmentCenter -> viewModel.updateHomeAlignment(Gravity.CENTER)
@@ -136,19 +125,6 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
             R.id.swipeDownAction -> binding.swipeDownSelectLayout.visibility = View.VISIBLE
             R.id.notifications -> updateSwipeDownAction(Constants.SwipeDownAction.NOTIFICATIONS)
             R.id.search -> updateSwipeDownAction(Constants.SwipeDownAction.SEARCH)
-            R.id.aboutOlauncher -> {
-                prefs.aboutClicked = true
-                requireContext().openUrl(Constants.URL_ABOUT_OLAUNCHER)
-            }
-            R.id.share -> requireActivity().shareApp()
-            R.id.rate -> {
-                prefs.rateClicked = true
-                requireActivity().rateApp()
-            }
-            R.id.twitter -> requireContext().openUrl(Constants.URL_TWITTER_TANUJ)
-            R.id.github -> requireContext().openUrl(Constants.URL_OLAUNCHER_GITHUB)
-            R.id.privacy -> requireContext().openUrl(Constants.URL_OLAUNCHER_PRIVACY)
-            R.id.footer -> requireContext().openUrl(Constants.URL_PLAY_STORE_DEV)
         }
     }
 
@@ -159,7 +135,6 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
                 findNavController().navigate(R.id.action_settingsFragment_to_appListFragment)
                 requireContext().showToast(getString(R.string.alignment_changed))
             }
-            R.id.dailyWallpaper -> removeWallpaper()
             R.id.appThemeText -> {
                 binding.appThemeSelectLayout.visibility = View.VISIBLE
                 binding.themeSystem.visibility = View.VISIBLE
@@ -176,13 +151,8 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
         binding.scrollLayout.setOnClickListener(this)
         binding.appInfo.setOnClickListener(this)
         binding.setLauncher.setOnClickListener(this)
-        binding.aboutOlauncher.setOnClickListener(this)
-        binding.olauncherPro.setOnClickListener(this)
         binding.autoShowKeyboard.setOnClickListener(this)
         binding.homeAppsNum.setOnClickListener(this)
-        binding.screenTimeOnOff.setOnClickListener(this)
-        binding.dailyWallpaperUrl.setOnClickListener(this)
-        binding.dailyWallpaper.setOnClickListener(this)
         binding.alignment.setOnClickListener(this)
         binding.alignmentLeft.setOnClickListener(this)
         binding.alignmentCenter.setOnClickListener(this)
@@ -205,13 +175,6 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
         binding.themeSystem.setOnClickListener(this)
         binding.textSizeValue.setOnClickListener(this)
 
-        binding.share.setOnClickListener(this)
-        binding.rate.setOnClickListener(this)
-        binding.twitter.setOnClickListener(this)
-        binding.github.setOnClickListener(this)
-        binding.privacy.setOnClickListener(this)
-        binding.footer.setOnClickListener(this)
-
         binding.maxApps0.setOnClickListener(this)
         binding.maxApps1.setOnClickListener(this)
         binding.maxApps2.setOnClickListener(this)
@@ -230,7 +193,6 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
         binding.textSize6.setOnClickListener(this)
         binding.textSize7.setOnClickListener(this)
 
-        binding.dailyWallpaper.setOnLongClickListener(this)
         binding.alignment.setOnLongClickListener(this)
         binding.appThemeText.setOnLongClickListener(this)
         binding.swipeLeftApp.setOnLongClickListener(this)
@@ -239,10 +201,6 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
     }
 
     private fun initObservers() {
-        if (prefs.firstSettingsOpen) {
-            viewModel.showDialog.postValue(Constants.Dialog.ABOUT)
-            prefs.firstSettingsOpen = false
-        }
         viewModel.isOlauncherDefault.observe(viewLifecycleOwner) {
             if (it) {
                 binding.setLauncher.text = getString(R.string.change_default_launcher)
@@ -366,38 +324,6 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
                 )
     }
 
-    private fun removeWallpaper() {
-        setPlainWallpaper(requireContext(), android.R.color.black)
-        if (!prefs.dailyWallpaper) return
-        prefs.dailyWallpaper = false
-        populateWallpaperText()
-        viewModel.cancelWallpaperWorker()
-    }
-
-    private fun toggleDailyWallpaperUpdate() {
-        if (prefs.dailyWallpaper.not() && viewModel.isOlauncherDefault.value == false) {
-            requireContext().showToast(R.string.set_as_default_launcher_first)
-            return
-        }
-        prefs.dailyWallpaper = !prefs.dailyWallpaper
-        populateWallpaperText()
-        if (prefs.dailyWallpaper) {
-            viewModel.setWallpaperWorker()
-            showWallpaperToasts()
-        } else viewModel.cancelWallpaperWorker()
-    }
-
-    private fun showWallpaperToasts() {
-        if (isOlauncherDefault(requireContext()))
-                requireContext().showToast(getString(R.string.your_wallpaper_will_update_shortly))
-        else
-                requireContext()
-                        .showToast(
-                                getString(R.string.olauncher_is_not_default_launcher),
-                                Toast.LENGTH_LONG
-                        )
-    }
-
     private fun updateHomeAppsNum(num: Int) {
         binding.homeAppsNum.text = num.toString()
         binding.appsNumSelectLayout.visibility = View.GONE
@@ -473,22 +399,9 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
                 }.toString()
     }
 
-    private fun populateScreenTimeOnOff() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            if (requireContext().appUsagePermissionGranted())
-                    binding.screenTimeOnOff.text = getString(R.string.on)
-            else binding.screenTimeOnOff.text = getString(R.string.off)
-        } else binding.screenTimeLayout.visibility = View.GONE
-    }
-
     private fun populateKeyboardText() {
         if (prefs.autoShowKeyboard) binding.autoShowKeyboard.text = getString(R.string.on)
         else binding.autoShowKeyboard.text = getString(R.string.off)
-    }
-
-    private fun populateWallpaperText() {
-        if (prefs.dailyWallpaper) binding.dailyWallpaper.text = getString(R.string.on)
-        else binding.dailyWallpaper.text = getString(R.string.off)
     }
 
     private fun updateHomeBottomAlignment() {
@@ -569,33 +482,9 @@ class SettingsFragment : Fragment(), View.OnClickListener, View.OnLongClickListe
                 )
     }
 
-    private fun populateActionHints() {
-        if (prefs.aboutClicked.not())
-                binding.aboutOlauncher.setCompoundDrawablesWithIntrinsicBounds(
-                        0,
-                        0,
-                        android.R.drawable.stat_notify_more,
-                        0
-                )
-        if (viewModel.isOlauncherDefault.value != true) return
-        if (prefs.rateClicked.not() &&
-                        prefs.toShowHintCounter > Constants.HINT_RATE_US &&
-                        prefs.toShowHintCounter < Constants.HINT_RATE_US + 100
-        )
-                binding.rate.setCompoundDrawablesWithIntrinsicBounds(
-                        0,
-                        android.R.drawable.arrow_down_float,
-                        0,
-                        0
-                )
-    }
+    private fun populateActionHints() {}
 
-    private fun populateProMessage() {
-        if (prefs.proMessageShown.not() && prefs.userState == Constants.UserState.SHARE) {
-            prefs.proMessageShown = true
-            viewModel.showDialog.postValue(Constants.Dialog.PRO_MESSAGE)
-        }
-    }
+    private fun populateProMessage() {}
 
     override fun onDestroyView() {
         super.onDestroyView()

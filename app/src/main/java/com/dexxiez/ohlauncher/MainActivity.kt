@@ -21,23 +21,13 @@ import com.dexxiez.ohlauncher.data.Constants
 import com.dexxiez.ohlauncher.data.Prefs
 import com.dexxiez.ohlauncher.databinding.ActivityMainBinding
 import com.dexxiez.ohlauncher.helper.getColorFromAttr
-import com.dexxiez.ohlauncher.helper.hasBeenDays
-import com.dexxiez.ohlauncher.helper.hasBeenHours
-import com.dexxiez.ohlauncher.helper.hasBeenMinutes
 import com.dexxiez.ohlauncher.helper.isDarkThemeOn
-import com.dexxiez.ohlauncher.helper.isDaySince
 import com.dexxiez.ohlauncher.helper.isDefaultLauncher
 import com.dexxiez.ohlauncher.helper.isEinkDisplay
-import com.dexxiez.ohlauncher.helper.isOlauncherDefault
 import com.dexxiez.ohlauncher.helper.isTablet
-import com.dexxiez.ohlauncher.helper.openUrl
-import com.dexxiez.ohlauncher.helper.rateApp
 import com.dexxiez.ohlauncher.helper.resetLauncherViaFakeActivity
 import com.dexxiez.ohlauncher.helper.setPlainWallpaper
-import com.dexxiez.ohlauncher.helper.shareApp
 import com.dexxiez.ohlauncher.helper.showLauncherSelector
-import com.dexxiez.ohlauncher.helper.showToast
-import java.util.Calendar
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -71,12 +61,6 @@ class MainActivity : AppCompatActivity() {
 
         navController = Navigation.findNavController(this, R.id.nav_host_fragment)
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
-        if (prefs.firstOpen) {
-            viewModel.firstOpen(true)
-            prefs.firstOpen = false
-            prefs.firstOpenTime = System.currentTimeMillis()
-            viewModel.resetLauncherLiveData.call()
-        }
 
         initClickListeners()
         initObservers(viewModel)
@@ -133,65 +117,6 @@ class MainActivity : AppCompatActivity() {
         viewModel.checkForMessages.observe(this) { checkForMessages() }
         viewModel.showDialog.observe(this) {
             when (it) {
-                Constants.Dialog.ABOUT -> {
-                    showMessageDialog(
-                            getString(R.string.app_name),
-                            getString(R.string.welcome_to_olauncher_settings),
-                            getString(R.string.okay)
-                    ) { binding.messageLayout.visibility = View.GONE }
-                }
-                Constants.Dialog.WALLPAPER -> {
-                    prefs.wallpaperMsgShown = true
-                    prefs.userState = Constants.UserState.REVIEW
-                    showMessageDialog(
-                            getString(R.string.did_you_know),
-                            getString(R.string.wallpaper_message),
-                            getString(R.string.enable)
-                    ) {
-                        binding.messageLayout.visibility = View.GONE
-                        prefs.dailyWallpaper = true
-                        viewModel.setWallpaperWorker()
-                        showToast(getString(R.string.your_wallpaper_will_update_shortly))
-                    }
-                }
-                Constants.Dialog.REVIEW -> {
-                    prefs.userState = Constants.UserState.RATE
-                    showMessageDialog(
-                            getString(R.string.hey),
-                            getString(R.string.review_message),
-                            getString(R.string.leave_a_review)
-                    ) {
-                        binding.messageLayout.visibility = View.GONE
-                        prefs.rateClicked = true
-                        showToast("😇❤️")
-                        rateApp()
-                    }
-                }
-                Constants.Dialog.RATE -> {
-                    prefs.userState = Constants.UserState.SHARE
-                    showMessageDialog(
-                            getString(R.string.app_name),
-                            getString(R.string.rate_us_message),
-                            getString(R.string.rate_now)
-                    ) {
-                        binding.messageLayout.visibility = View.GONE
-                        prefs.rateClicked = true
-                        showToast("🤩❤️")
-                        rateApp()
-                    }
-                }
-                Constants.Dialog.SHARE -> {
-                    prefs.shareShownTime = System.currentTimeMillis()
-                    showMessageDialog(
-                            getString(R.string.hey),
-                            getString(R.string.share_message),
-                            getString(R.string.share_now)
-                    ) {
-                        binding.messageLayout.visibility = View.GONE
-                        showToast("😊❤️")
-                        shareApp()
-                    }
-                }
                 Constants.Dialog.HIDDEN -> {
                     showMessageDialog(
                             getString(R.string.hidden_apps),
@@ -213,13 +138,6 @@ class MainActivity : AppCompatActivity() {
                             getString(R.string.permission)
                     ) { startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)) }
                 }
-                Constants.Dialog.PRO_MESSAGE -> {
-                    showMessageDialog(
-                            getString(R.string.hey),
-                            getString(R.string.pro_message),
-                            getString(R.string.olauncher_pro)
-                    ) { openUrl(Constants.URL_OLAUNCHER_PRO) }
-                }
             }
         }
     }
@@ -240,39 +158,14 @@ class MainActivity : AppCompatActivity() {
     private fun checkForMessages() {
         if (prefs.firstOpenTime == 0L) prefs.firstOpenTime = System.currentTimeMillis()
 
-        when (prefs.userState) {
-            Constants.UserState.START -> {
-                if (prefs.firstOpenTime.hasBeenMinutes(10))
-                        prefs.userState = Constants.UserState.WALLPAPER
-            }
-            Constants.UserState.WALLPAPER -> {
-                if (prefs.wallpaperMsgShown || prefs.dailyWallpaper)
-                        prefs.userState = Constants.UserState.REVIEW
-                else if (isOlauncherDefault(this))
-                        viewModel.showDialog.postValue(Constants.Dialog.WALLPAPER)
-            }
-            Constants.UserState.REVIEW -> {
-                if (prefs.rateClicked) prefs.userState = Constants.UserState.SHARE
-                else if (isOlauncherDefault(this) && prefs.firstOpenTime.hasBeenHours(1))
-                        viewModel.showDialog.postValue(Constants.Dialog.REVIEW)
-            }
-            Constants.UserState.RATE -> {
-                if (prefs.rateClicked) prefs.userState = Constants.UserState.SHARE
-                else if (isOlauncherDefault(this) &&
-                                prefs.firstOpenTime.isDaySince() >= 7 &&
-                                Calendar.getInstance().get(Calendar.HOUR_OF_DAY) >= 16
-                )
-                        viewModel.showDialog.postValue(Constants.Dialog.RATE)
-            }
-            Constants.UserState.SHARE -> {
-                if (isOlauncherDefault(this) &&
-                                prefs.firstOpenTime.hasBeenDays(14) &&
-                                prefs.shareShownTime.isDaySince() >= 70 &&
-                                Calendar.getInstance().get(Calendar.HOUR_OF_DAY) >= 16
-                )
-                        viewModel.showDialog.postValue(Constants.Dialog.SHARE)
-            }
-        }
+        // NOTE: Can use this later if i wanna hyjack
+
+        // when (prefs.userState) {
+        //     Constants.UserState.START -> {
+        //         if (prefs.firstOpenTime.hasBeenMinutes(10))
+        //                 prefs.userState = Constants.UserState.WALLPAPER
+        //     }
+        // }
     }
 
     @SuppressLint("SourceLockedOrientationActivity")
