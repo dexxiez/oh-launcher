@@ -4,16 +4,16 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.view.Gravity
 import androidx.appcompat.app.AppCompatDelegate
+import com.dexxiez.ohlauncher.R
 
-class Prefs(context: Context) {
-    private val PREFS_FILENAME = "app.olauncher"
+class Prefs(private val context: Context) {
+    private val PREFS_FILENAME = "com.dexxiez.ohlauncher"
 
     private val FIRST_OPEN = "FIRST_OPEN"
     private val FIRST_OPEN_TIME = "FIRST_OPEN_TIME"
     private val FIRST_SETTINGS_OPEN = "FIRST_SETTINGS_OPEN"
     private val FIRST_HIDE = "FIRST_HIDE"
     private val USER_STATE = "USER_STATE"
-    private val LOCK_MODE = "LOCK_MODE"
     private val HOME_APPS_NUM = "HOME_APPS_NUM"
     private val AUTO_SHOW_KEYBOARD = "AUTO_SHOW_KEYBOARD"
     private val KEYBOARD_MESSAGE = "KEYBOARD_MESSAGE"
@@ -27,6 +27,7 @@ class Prefs(context: Context) {
     private val DATE_TIME_VISIBILITY = "DATE_TIME_VISIBILITY"
     private val SWIPE_LEFT_ENABLED = "SWIPE_LEFT_ENABLED"
     private val SWIPE_RIGHT_ENABLED = "SWIPE_RIGHT_ENABLED"
+    private val DOUBLE_TAP_ENABLED = "DOUBLE_TAP_ENABLED"
     private val HIDDEN_APPS = "HIDDEN_APPS"
     private val HIDDEN_APPS_UPDATED = "HIDDEN_APPS_UPDATED"
     private val SHOW_HINT_COUNTER = "SHOW_HINT_COUNTER"
@@ -76,12 +77,16 @@ class Prefs(context: Context) {
 
     private val APP_NAME_SWIPE_LEFT = "APP_NAME_SWIPE_LEFT"
     private val APP_NAME_SWIPE_RIGHT = "APP_NAME_SWIPE_RIGHT"
+    private val APP_NAME_DOUBLE_TAP = "APP_NAME_DOUBLE_TAP"
     private val APP_PACKAGE_SWIPE_LEFT = "APP_PACKAGE_SWIPE_LEFT"
     private val APP_PACKAGE_SWIPE_RIGHT = "APP_PACKAGE_SWIPE_RIGHT"
+    private val APP_PACKAGE_DOUBLE_TAP = "APP_PACKAGE_DOUBLE_TAP"
     private val APP_ACTIVITY_CLASS_NAME_SWIPE_LEFT = "APP_ACTIVITY_CLASS_NAME_SWIPE_LEFT"
     private val APP_ACTIVITY_CLASS_NAME_SWIPE_RIGHT = "APP_ACTIVITY_CLASS_NAME_SWIPE_RIGHT"
+    private val APP_ACTIVITY_CLASS_NAME_DOUBLE_TAP = "APP_ACTIVITY_CLASS_NAME_DOUBLE_TAP"
     private val APP_USER_SWIPE_LEFT = "APP_USER_SWIPE_LEFT"
     private val APP_USER_SWIPE_RIGHT = "APP_USER_SWIPE_RIGHT"
+    private val APP_USER_DOUBLE_TAP = "APP_USER_DOUBLE_TAP"
     private val CLOCK_APP_PACKAGE = "CLOCK_APP_PACKAGE"
     private val CLOCK_APP_USER = "CLOCK_APP_USER"
     private val CLOCK_APP_CLASS_NAME = "CLOCK_APP_CLASS_NAME"
@@ -89,7 +94,7 @@ class Prefs(context: Context) {
     private val CALENDAR_APP_USER = "CALENDAR_APP_USER"
     private val CALENDAR_APP_CLASS_NAME = "CALENDAR_APP_CLASS_NAME"
 
-    private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_FILENAME, 0);
+    private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_FILENAME, 0)
 
     var firstOpen: Boolean
         get() = prefs.getBoolean(FIRST_OPEN, true)
@@ -110,10 +115,6 @@ class Prefs(context: Context) {
     var userState: String
         get() = prefs.getString(USER_STATE, Constants.UserState.START).toString()
         set(value) = prefs.edit().putString(USER_STATE, value).apply()
-
-    var lockModeOn: Boolean
-        get() = prefs.getBoolean(LOCK_MODE, false)
-        set(value) = prefs.edit().putBoolean(LOCK_MODE, value).apply()
 
     var autoShowKeyboard: Boolean
         get() = prefs.getBoolean(AUTO_SHOW_KEYBOARD, true)
@@ -162,6 +163,10 @@ class Prefs(context: Context) {
     var swipeRightEnabled: Boolean
         get() = prefs.getBoolean(SWIPE_RIGHT_ENABLED, true)
         set(value) = prefs.edit().putBoolean(SWIPE_RIGHT_ENABLED, value).apply()
+
+    var doubleTapEnabled: Boolean
+        get() = prefs.getBoolean(DOUBLE_TAP_ENABLED, true)
+        set(value) = prefs.edit().putBoolean(DOUBLE_TAP_ENABLED, value).apply()
 
     var appTheme: Int
         get() = prefs.getInt(APP_THEME, AppCompatDelegate.MODE_NIGHT_YES)
@@ -351,6 +356,12 @@ class Prefs(context: Context) {
         get() = prefs.getString(APP_NAME_SWIPE_RIGHT, "Phone").toString()
         set(value) = prefs.edit().putString(APP_NAME_SWIPE_RIGHT, value).apply()
 
+    var appNameDoubleTap: String
+        get() =
+                prefs.getString(APP_NAME_DOUBLE_TAP, context.getString(R.string.select_app))
+                        .toString()
+        set(value) = prefs.edit().putString(APP_NAME_DOUBLE_TAP, value).apply()
+
     var appPackageSwipeLeft: String
         get() = prefs.getString(APP_PACKAGE_SWIPE_LEFT, "").toString()
         set(value) = prefs.edit().putString(APP_PACKAGE_SWIPE_LEFT, value).apply()
@@ -366,6 +377,18 @@ class Prefs(context: Context) {
     var appActivityClassNameRight: String?
         get() = prefs.getString(APP_ACTIVITY_CLASS_NAME_SWIPE_RIGHT, "").toString()
         set(value) = prefs.edit().putString(APP_ACTIVITY_CLASS_NAME_SWIPE_RIGHT, value).apply()
+
+    var appPackageDoubleTap: String
+        get() = prefs.getString(APP_PACKAGE_DOUBLE_TAP, "").toString()
+        set(value) = prefs.edit().putString(APP_PACKAGE_DOUBLE_TAP, value).apply()
+
+    var appActivityClassNameDoubleTap: String?
+        get() = prefs.getString(APP_ACTIVITY_CLASS_NAME_DOUBLE_TAP, "").toString()
+        set(value) = prefs.edit().putString(APP_ACTIVITY_CLASS_NAME_DOUBLE_TAP, value).apply()
+
+    var appUserDoubleTap: String
+        get() = prefs.getString(APP_USER_DOUBLE_TAP, "").toString()
+        set(value) = prefs.edit().putString(APP_USER_DOUBLE_TAP, value).apply()
 
     var appUserSwipeLeft: String
         get() = prefs.getString(APP_USER_SWIPE_LEFT, "").toString()
@@ -457,5 +480,6 @@ class Prefs(context: Context) {
 
     fun getAppRenameLabel(appPackage: String): String = prefs.getString(appPackage, "").toString()
 
-    fun setAppRenameLabel(appPackage: String, renameLabel: String) = prefs.edit().putString(appPackage, renameLabel).apply()
+    fun setAppRenameLabel(appPackage: String, renameLabel: String) =
+            prefs.edit().putString(appPackage, renameLabel).apply()
 }

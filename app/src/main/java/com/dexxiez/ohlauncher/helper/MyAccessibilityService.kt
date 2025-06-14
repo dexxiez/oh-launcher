@@ -16,7 +16,7 @@ class MyAccessibilityService : AccessibilityService() {
     }
 
     override fun onServiceConnected() {
-        Prefs(applicationContext).lockModeOn = true
+        Prefs(applicationContext).doubleTapEnabled = true
         super.onServiceConnected()
     }
 
@@ -25,15 +25,14 @@ class MyAccessibilityService : AccessibilityService() {
         try {
             val source: AccessibilityNodeInfo = event.source ?: return
             if ((source.className == "android.widget.FrameLayout") and
-                (source.contentDescription == getString(R.string.lock_layout_description))
+                            (source.contentDescription ==
+                                    getString(R.string.lock_layout_description))
             )
-                performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN)
+                    performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN)
         } catch (e: Exception) {
             return
         }
     }
 
-    override fun onInterrupt() {
-
-    }
+    override fun onInterrupt() {}
 }

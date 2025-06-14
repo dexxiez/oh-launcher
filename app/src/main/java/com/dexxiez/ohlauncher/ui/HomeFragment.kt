@@ -14,7 +14,6 @@ import android.view.ViewGroup
 import android.view.WindowInsets
 import android.widget.FrameLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
@@ -462,26 +461,15 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
         else openCameraApp(requireContext())
     }
 
-    private fun lockPhone() {
-        requireActivity().runOnUiThread {
-            try {
-                deviceManager.lockNow()
-            } catch (e: SecurityException) {
-                requireContext()
-                        .showToast(
-                                getString(R.string.please_turn_on_double_tap_to_unlock),
-                                Toast.LENGTH_LONG
-                        )
-                findNavController().navigate(R.id.action_mainFragment_to_settingsFragment)
-            } catch (e: Exception) {
-                requireContext()
-                        .showToast(
-                                getString(R.string.launcher_failed_to_lock_device),
-                                Toast.LENGTH_LONG
-                        )
-                prefs.lockModeOn = false
-            }
-        }
+    private fun openDoubleTapApp() {
+        if (!prefs.doubleTapEnabled) return
+        if (prefs.appPackageDoubleTap.isNotEmpty())
+                launchApp(
+                        prefs.appNameDoubleTap,
+                        prefs.appPackageDoubleTap,
+                        prefs.appActivityClassNameDoubleTap,
+                        prefs.appUserDoubleTap
+                )
     }
 
     private fun showStatusBar() {
@@ -581,8 +569,7 @@ class HomeFragment : Fragment(), View.OnClickListener, View.OnLongClickListener 
 
             override fun onDoubleClick() {
                 super.onDoubleClick()
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) binding.lock.performClick()
-                else if (prefs.lockModeOn) lockPhone()
+                openDoubleTapApp()
             }
 
             override fun onClick() {

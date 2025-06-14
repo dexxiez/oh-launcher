@@ -131,6 +131,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 prefs.appActivityClassNameRight = appModel.activityClassName
                 updateSwipeApps()
             }
+            Constants.FLAG_SET_DOUBLE_TAP_APP -> {
+                prefs.appNameDoubleTap = appModel.appLabel
+                prefs.appPackageDoubleTap = appModel.appPackage
+                prefs.appUserDoubleTap = appModel.user.toString()
+                prefs.appActivityClassNameDoubleTap = appModel.activityClassName
+                updateSwipeApps()
+            }
             Constants.FLAG_SET_CLOCK_APP -> {
                 prefs.clockAppPackage = appModel.appPackage
                 prefs.clockAppUser = appModel.user.toString()
