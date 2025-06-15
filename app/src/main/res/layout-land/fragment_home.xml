@@ -165,16 +165,6 @@
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/firstRunTips"
-        style="@style/TextSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginHorizontal="8dp"
-        android:layout_marginBottom="56dp"
-        android:gravity="center"
-        android:text="@string/swipe_up_for_apps" />
 
     <!-- Set default launcher -->
     <TextView
